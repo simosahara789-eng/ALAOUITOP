@@ -14,6 +14,13 @@ token = st.text_input("Reverb Token", type="password")
 shipping_profile_id = st.text_input("Shipping Profile ID")
 
 delay = st.number_input("Delay", value=0.6)
+price_reduction_percentage = st.number_input(
+    "Price reduction (%)",
+    min_value=0.0,
+    max_value=100.0,
+    value=20.0,
+    step=1.0
+)
 
 links_text = st.text_area(
     "Paste Reverb links",
@@ -34,12 +41,13 @@ def extract_listing_id(url):
         return m.group(1)
     return None
 
-def discount_20(price):
+def apply_discount(price, reduction_percentage):
     try:
         p = float(price)
     except:
         p = 0
-    new_price = p * 0.8
+    reduction = float(reduction_percentage) / 100
+    new_price = p * (1 - reduction)
     return f"{new_price:.2f}"
 
 def get_listing(tok, listing_id):
@@ -80,7 +88,7 @@ def build_payload(src):
 
     currency = price_obj.get("currency","USD")
 
-    new_price = discount_20(amount)
+    new_price = apply_discount(amount, price_reduction_percentage)
 
     photos = []
 
